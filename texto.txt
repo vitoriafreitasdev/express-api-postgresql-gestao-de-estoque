@@ -1,1 +1,18 @@
-teste
+1. Sistema de Gestão de Estoque para Pequenos Comércios
+Problema real: Lojistas perdem vendas por não saberem quanto têm em estoque ou vendem produtos que já acabaram.
+
+O que sua API deve resolver:
+
+Cadastro de produtos com código de barras, preço de compra/venda, quantidade mínima
+
+Controle de entrada e saída (vendas, devoluções, quebras)
+
+Alertas automáticos quando estoque atinge nível crítico
+
+Histórico de movimentações por período
+
+Relatório de produtos mais vendidos e margem de lucro
+
+Desafios técnicos: Transações concorrentes (evitar que 2 pessoas vendam o último item), triggers no PostgreSQL para atualizar estoque automaticamente, índices para buscas rápidas.
+
+https://blog.logrocket.com/crud-rest-api-node-js-express-postgresql/
