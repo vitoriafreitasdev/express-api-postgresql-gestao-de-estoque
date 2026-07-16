@@ -16,3 +16,5 @@ Relatório de produtos mais vendidos e margem de lucro
 Desafios técnicos: Transações concorrentes (evitar que 2 pessoas vendam o último item), triggers no PostgreSQL para atualizar estoque automaticamente, índices para buscas rápidas.
 
 https://blog.logrocket.com/crud-rest-api-node-js-express-postgresql/
+https://medium.com/@codethematrix/integrating-prisma-orm-with-postgresql-and-express-3f7b726cecec
+
