@@ -9,28 +9,18 @@ CREATE TABLE Empresas (
     CNPJ VARCHAR(70) NOT NULL UNIQUE 
 );
 
-CREATE TABLE Administradores(
+CREATE TABLE Funcionarios(
     id BIGSERIAL NOT NULL PRIMARY KEY,
     nome VARCHAR(50) NOT NULL,
     email VARCHAR(50) NOT NULL,
     senha VARCHAR(50) NOT NULL,
+    isAdmin BOOLEAN,
     id_empresa_fk INTEGER NOT NULL,
-    CONSTRAINT fk_admin_empresa
+    CONSTRAINT fk_funcionarios_empresa
         FOREIGN KEY(id_empresa_fk) 
             REFERENCES Empresas(id)
 );
 
-CREATE TABLE Gerenciadores(
-    id BIGSERIAL NOT NULL PRIMARY KEY,
-    nome VARCHAR(50) NOT NULL,
-    email VARCHAR(50) NOT NULL,
-    senha VARCHAR(50) NOT NULL,
-    vendas INTEGER NOT NULL DEFAULT 0, 
-    id_empresa_fk INTEGER NOT NULL,
-    CONSTRAINT fk_geren_empresa
-        FOREIGN KEY(id_empresa_fk) 
-            REFERENCES Empresas(id)
-);
 
 CREATE TABLE Produtos(
     id BIGSERIAL NOT NULL PRIMARY KEY,
