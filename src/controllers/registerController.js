@@ -2,6 +2,7 @@ import pool from "../db.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"
 import Empresas from "../models/Empresas.js"; 
+import Funcionarios from "../models/Funcionarios.js";
 
 const registerController = {
     registerCompany: async (req, res) => {
@@ -29,8 +30,17 @@ const registerController = {
 
         const existingCompanys = await Empresas.find("nome", nomeEmpresa)
         const exist = existingCompanys.find((company) => bcrypt.compareSync(empresaCnpj, company.cnpj))
+        if(!exist){
+            return res.status(400).json({message: "Empresa não encontrada."}) 
+        }
+
+        const companyId = exist.id
+        const hashPass = await bcrypt.hash(senha, 10)
+        const worker = new Funcionarios(nome, email, hashPass, isAdmin, companyId) //nome, email, senha, isAdmin, id_empresa_fk)
         
-        res.send(exist)
+        await worker.create()
+
+        return res.status(201).json({message: "Criado com sucesso"})
     }
 }
 

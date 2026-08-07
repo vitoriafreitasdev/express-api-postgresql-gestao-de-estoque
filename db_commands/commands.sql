@@ -12,8 +12,8 @@ CREATE TABLE Empresas (
 CREATE TABLE Funcionarios(
     id BIGSERIAL NOT NULL PRIMARY KEY,
     nome VARCHAR(50) NOT NULL,
-    email VARCHAR(50) NOT NULL,
-    senha VARCHAR(50) NOT NULL,
+    email VARCHAR(50) NOT NULL UNIQUE,
+    senha VARCHAR(60) NOT NULL,
     isAdmin BOOLEAN,
     id_empresa_fk INTEGER NOT NULL,
     CONSTRAINT fk_funcionarios_empresa
@@ -47,3 +47,4 @@ CREATE TABLE Relatorio_vendas(
         FOREIGN KEY(id_produto_fk) 
             REFERENCES Produtos(id)
 );
+
