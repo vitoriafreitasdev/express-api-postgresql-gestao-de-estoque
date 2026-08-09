@@ -9,7 +9,7 @@ const pathToKeyPub = path.join(currentDir, 'id_rsa_pub.pem');
 const PUB_KEY = fs.readFileSync(pathToKeyPub, 'utf8');
 
 function authMiddleware(req, res, next){
-  const token = req.cookies['jwt'].token
+  const token = req.cookies['jwt'] ? req.cookies['jwt'].token : null
 
   if(token)
   {
@@ -19,7 +19,7 @@ function authMiddleware(req, res, next){
       next()
     } catch (error) {
       console.log(error)
-      res.status(401).json({msg: 'Unauthorized', err: error.message})
+      res.status(401).json({msg: 'Não autorizado.', err: error.message})
     }
     
   }

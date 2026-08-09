@@ -21,9 +21,17 @@ const verifyCallback =  (usernameField, passwordField, cb) => {
             if(!data) {return cb(null, false)}
        
             const isCorrect = await verifyPassword(passwordField, data.senha)
-      
+
+            const objToReturn = {
+                id: data.id,
+                nome: data.nome, 
+                email: data.email,
+                isadmin: data.isadmin,
+                id_empresa_fk: data.id_empresa_fk
+            }
+            
             if(isCorrect){
-                return cb(null, data)
+                return cb(null, objToReturn)
             }
             else{
                 return cb(null, false)
