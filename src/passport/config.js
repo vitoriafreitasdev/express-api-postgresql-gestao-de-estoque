@@ -7,7 +7,7 @@ const LocalStrategy = passportLocal.Strategy;
 
 const customFields = {
     usernameField: 'email',
-    passwordField: 'password'
+    passwordField: 'senha'
 }
 
 const verifyPassword = async (text, passwordHash) => {

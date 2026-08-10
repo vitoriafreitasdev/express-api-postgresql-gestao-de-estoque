@@ -7,6 +7,8 @@ const router = express.Router()
 
 //rotas de teste de autentificação
 router.get('/get-user', authMiddleware, (req, res) =>  {
+    //verificar aqui ou no authMiddleware se o usuario ainda esta na sessao, antes fazer o teste de usuario sem sessao, mas com o token
+
     res.send(`Autorizado: ${req.user.nome}`)
 })
 

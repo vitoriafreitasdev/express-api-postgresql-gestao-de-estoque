@@ -11,17 +11,24 @@ class Funcionarios{
     }
 
     async create(){
-        const result = await pool.query(`INSERT INTO Funcionarios (nome, senha, isAdmin, email, id_empresa_fk) VALUES ($1, $2, $3, $4, $5) RETURNING *`, [this.nome, this.senha, this.isAdmin, this.email, this.id_empresa_fk])
-        this.id = result.rows[0].id
-        return result
+        try {
+            const result = await pool.query(`INSERT INTO Funcionarios (nome, senha, isAdmin, email, id_empresa_fk) VALUES ($1, $2, $3, $4, $5) RETURNING *`, [this.nome, this.senha, this.isAdmin, this.email, this.id_empresa_fk])
+            this.id = result.rows[0].id
+        } catch (error) {
+            throw new Error(error)
+        }
     }
 
     static async find(nameValue, value){
-        const find = await pool.query(`SELECT * FROM Funcionarios WHERE ${nameValue} = $1`, [value])
-        if(find.rowCount > 0){
-            return find.rows[0]
+        try {
+            const find = await pool.query(`SELECT * FROM Funcionarios WHERE ${nameValue} = $1`, [value])
+            if(find.rowCount > 0){
+                return find.rows[0]
+            }
+            return null
+        } catch (error) {
+            throw new Error(error)
         }
-        return null
     }
 }
 

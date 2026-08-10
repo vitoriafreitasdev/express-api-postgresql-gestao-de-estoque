@@ -43,6 +43,16 @@ app.get('/', (req, res) => {
   res.send(`<div>Bem vindo</div`)
 })
 
+//para testes
+app.get('/login', (req, res) => { 
+  const form = '<h1>Login Page</h1><form method="POST" action="/login/worker">\
+    Enter Username:<br><input type="text" name="email">\
+    <br>Enter Password:<br><input type="password" name="password">\
+    <br><br><input type="submit" value="Submit"></form>';
+
+  res.send(form);
+})
+
 app.use('/register', registerRouter)
 app.use('/login', loginRouter)
 app.use('/auth', authRouter)

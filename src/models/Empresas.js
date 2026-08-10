@@ -8,19 +8,37 @@ class Empresas{
     }
 
     async create(){
-        const result = await pool.query(`INSERT INTO Empresas (nome, CNPJ) VALUES ($1, $2) RETURNING *`, [this.nome, this.cnpj])
-        this.id = result.rows[0].id
-        return result
+        try {
+            const result = await pool.query(`INSERT INTO Empresas (nome, CNPJ) VALUES ($1, $2) RETURNING *`, [this.nome, this.cnpj])
+            this.id = result.rows[0].id
+            return result
+        } catch (error) {
+            throw new Error(error)
+        }
     }
     static async find(nameValue, value){
-        const find = await pool.query(`SELECT * FROM Empresas WHERE ${nameValue} = $1`, [value])
-        return find.rows
+        try{
+            const find = await pool.query(`SELECT * FROM Empresas WHERE ${nameValue} = $1`, [value])
+            if(find.rowCount > 0){
+                return find.rows
+            }
+            return null
+        }
+        catch (error) {
+            throw new Error(error)
+        }
     }
     static async findAll(){
-        const find = await pool.query(`SELECT * FROM Empresas`)
-        return find.rows
-
-        
+        try{
+            const find = await pool.query(`SELECT * FROM Empresas`)
+            if(find.rowCount > 0){
+                return find.rows
+            }
+            return null
+        }
+        catch (error) {
+            throw new Error(error)
+        }
     }
 }
 

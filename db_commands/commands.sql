@@ -21,12 +21,14 @@ CREATE TABLE Funcionarios(
             REFERENCES Empresas(id)
 );
 
+drop table Relatorio_vendas;
 drop table Produtos;
 
 CREATE TABLE Produtos(
     id BIGSERIAL NOT NULL PRIMARY KEY,
     nome VARCHAR(50) NOT NULL,
     preco NUMERIC(6, 2),
+    preco_de_venda NUMERIC(6, 2),
     quantidade INTEGER NOT NULL DEFAULT 0, 
     codigo_de_barras VARCHAR(50) NOT NULL,
     id_empresa_fk INTEGER NOT NULL,
