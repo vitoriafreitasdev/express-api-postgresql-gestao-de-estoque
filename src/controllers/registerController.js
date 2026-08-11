@@ -1,6 +1,5 @@
 import pool from "../db.js";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken"
 import Empresas from "../models/Empresas.js"; 
 import Funcionarios from "../models/Funcionarios.js";
 import Produtos from "../models/Produtos.js";
@@ -42,7 +41,7 @@ const registerController = {
 
             const companyId = exist.id
             const hashPass = await bcrypt.hash(senha, 10)
-            const worker = new Funcionarios(nome, email, hashPass, isAdmin, companyId) //nome, email, senha, isAdmin, id_empresa_fk)
+            const worker = new Funcionarios(nome, email, hashPass, isAdmin, companyId) 
             
             await worker.create()
             
@@ -54,7 +53,7 @@ const registerController = {
     },
     registerProducts: async (req, res) => {
        try {
-            const {nome, preco, quantidade, preco_de_venda, codigo_de_barras} = req.body
+            const {nome, preco, preco_de_venda, quantidade, codigo_de_barras} = req.body
 
             //verificando se o comprimento do codigo de barras passa do valor maximo de caracteres do banco de dados
             if(codigo_de_barras.length > 50){
@@ -66,14 +65,15 @@ const registerController = {
             if(!existingCompanys){
                     return res.status(400).json({message: "Empresa não encontrada."}) 
             }
-            const newProduct = new Produtos(nome, preco, quantidade, codigo_de_barras, req.user.id_empresa_fk)
+            const newProduct = new Produtos(nome, preco, preco_de_venda, quantidade, codigo_de_barras, req.user.id_empresa_fk)
             const result = await newProduct.create()
             res.send(result)
        } catch (error) {
+            if(error.message === 'error: duplicar valor da chave viola a restrição de unicidade \"produtos_codigo_de_barras_key\"'){
+                return res.status(500).json({message: "Produto com esse código de barras já existente.", error: error.message})
+            }
             return res.status(500).json({message: "Erro no sistema, tente novamente mais tarde.", error: error.message})
        }
-
-
     }
 }
 

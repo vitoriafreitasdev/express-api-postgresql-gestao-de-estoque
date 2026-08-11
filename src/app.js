@@ -3,6 +3,7 @@ import express from 'express'
 import registerRouter from './routes/registerRoutes.js'
 import loginRouter from './routes/loginRoutes.js'
 import authRouter from './routes/authRoutes.js'
+import updateDelRouter from './routes/updateAndDelRoutes.js'
 import passport from 'passport';
 import session from 'express-session'
 import connectPg from 'connect-pg-simple'
@@ -56,6 +57,7 @@ app.get('/login', (req, res) => {
 app.use('/register', registerRouter)
 app.use('/login', loginRouter)
 app.use('/auth', authRouter)
+app.use('/edit', updateDelRouter)
 
 app.listen(port, () => {
     console.log("Server is listening on port: ", port)

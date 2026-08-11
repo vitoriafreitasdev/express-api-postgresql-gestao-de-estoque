@@ -30,7 +30,7 @@ CREATE TABLE Produtos(
     preco NUMERIC(6, 2),
     preco_de_venda NUMERIC(6, 2),
     quantidade INTEGER NOT NULL DEFAULT 0, 
-    codigo_de_barras VARCHAR(50) NOT NULL,
+    codigo_de_barras VARCHAR(50) UNIQUE NOT NULL,
     id_empresa_fk INTEGER NOT NULL,
     CONSTRAINT fk_prod_empresa
         FOREIGN KEY(id_empresa_fk) 
