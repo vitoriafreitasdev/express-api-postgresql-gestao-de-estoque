@@ -42,7 +42,7 @@ const registerController = {
             const companyId = exist.id
             const hashPass = await bcrypt.hash(senha, 10)
             const worker = new Funcionarios(nome, email, hashPass, isAdmin, companyId) 
-            
+           
             await worker.create()
             
             return next()
@@ -54,18 +54,20 @@ const registerController = {
     registerProducts: async (req, res) => {
        try {
             const {nome, preco, preco_de_venda, quantidade, codigo_de_barras} = req.body
+            const id_empresa_fk = req.user.id_empresa_fk
 
             //verificando se o comprimento do codigo de barras passa do valor maximo de caracteres do banco de dados
             if(codigo_de_barras.length > 50){
                 return res.status(400).json({message: "Comprimento máximo do codigo barras atingido (50 caracteres)."})
             } 
 
-            const existingCompanys = await Empresas.find("id", req.user.id_empresa_fk)
+            const existingCompanys = await Empresas.find("id", id_empresa_fk)
          
             if(!existingCompanys){
                     return res.status(400).json({message: "Empresa não encontrada."}) 
             }
-            const newProduct = new Produtos(nome, preco, preco_de_venda, quantidade, codigo_de_barras, req.user.id_empresa_fk)
+            const newProduct = new Produtos(null, nome, preco, preco_de_venda, quantidade, codigo_de_barras, id_empresa_fk)
+
             const result = await newProduct.create()
             res.send(result)
        } catch (error) {

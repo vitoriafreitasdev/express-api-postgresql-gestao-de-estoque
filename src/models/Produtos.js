@@ -10,12 +10,12 @@
 import pool from "../db.js"
 
 class Produtos{
-    constructor(id = null, nome, preco, preco_de_venda, quantidade, codigo_de_barras, id_empresa_fk){
-        this.id = id 
+    constructor(id, nome, preco, preco_de_venda, quantidade, codigo_de_barras, id_empresa_fk){
+        this.id = id
         this.nome = nome
         this.preco = preco
-        this.quantidade = quantidade
         this.preco_de_venda = preco_de_venda
+        this.quantidade = quantidade
         this.codigo_de_barras = codigo_de_barras
         this.id_empresa_fk = id_empresa_fk
     }
@@ -39,11 +39,34 @@ class Produtos{
             if(valueToUpdate == 'quantidade') this.quantidade = result.rows[0].quantidade
             if(valueToUpdate == 'codigo_de_barras') this.codigo_de_barras = result.rows[0].codigo_de_barras
 
-        } catch (error) {
+        } 
+        catch(error) {
             throw new Error(error)
         }
     }
 
+    static async delete(id){
+        try{
+            await pool.query(`DELETE from Produtos WHERE id = $1`, [id])
+        }
+        catch(error) {
+            throw new Error(error)
+        }
+    }
+    
+    static async findMany(value, valuesList){
+        try {
+            const query = `SELECT * FROM Produtos WHERE ${value} in (${valuesList.map( (x, index) => {return `$${index+1}`} )})`
+            const find = await pool.query(query, valuesList)
+            if(find.rowCount > 0){
+                return find.rows
+            }
+            return null
+        } 
+        catch (error) {
+            throw new Error(error)
+        }
+    }
     static async find(nameValue, value){
         try {
             const find = await pool.query(`SELECT * FROM Produtos WHERE ${nameValue} = $1`, [value])
@@ -51,7 +74,8 @@ class Produtos{
                 return find.rows[0]
             }
             return null
-        } catch (error) {
+        } 
+        catch (error) {
             throw new Error(error)
         }
     }

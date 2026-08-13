@@ -6,6 +6,9 @@ import authIsAdmin from '../utils/authIsAdmin.js'
 
 const router = express.Router()
 
-router.put('/update/produto/:id', (req, res) => updateAndDelController.updateProdutos(req, res))
+router.put('/update/produto/:id', authMiddleware, authIsAdmin, (req, res) => updateAndDelController.updateProdutos(req, res))
+router.delete('/delete/produto/:id', authMiddleware, authIsAdmin, (req, res) => updateAndDelController.deleteProduto(req, res))
+router.put('/sellProducts', authMiddleware, (req, res) => updateAndDelController.sellProducts(req, res))
+
 
 export default router
