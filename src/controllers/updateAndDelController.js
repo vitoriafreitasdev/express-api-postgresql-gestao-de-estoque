@@ -31,79 +31,96 @@ const updateAndDelController = {
             res.status(500).json({msg: "Erro no sistema, tente novamente.", error: error.message})
         }
     }, 
-    sellProducts: async (req, res) => {
+    sellProducts: async (req, res, next) => {
         try {
+            //fazer testes
             const {list} = req.body
-
             if(list.length > 1){
-                const items = list.map((item) => item.itemIdentificador)
-                const quantidadeList = list.map((item) => item.quantidade)
-   
+                const items = list.map((item) => item.codigo_de_barras)
                 const result = await Produtos.findMany('codigo_de_barras', items)
+                if(!result) return res.status(400).json({msg: "Nenhum resultado encotrado."})
+                //colocando a lista e os resultaddos na mesma ordem
+                const resultSorted = result.sort((a, b) => a.codigo_de_barras - b.codigo_de_barras)
+                const listSorted = list.sort((a, b) => a.codigo_de_barras - b.codigo_de_barras)
                 
                 let productsAtt = []
                 let productsSemEstoque = []
+                let produtosBaixoEstoque = []
+                let quantidadeDisponivelInsuficiente = []
+                let lucroTotal = 0
 
-                if(!result) return res.status(400).json({msg: "Nenhum resultado encotrado."})
+                if(resultSorted.length !== listSorted.length){
+                    const newResult = resultSorted.map((item) => (item.codigo_de_barras))
+                    const filter = items.filter((item) => !newResult.includes(item))
 
-                
-                for(let i = 0; i < result.length; i++){
+                    return res.status(400).json({msg:"Alguns dos produtos não foi encontrado.", nao_encontrados: filter})
+                }
+
+                for(let i = 0; i < resultSorted.length; i++){
             
-                    const produto = new Produtos(result[i].id, result[i].nome, result[i].preco, result[i].preco_de_venda, result[i].quantidade, result[i].codigo_de_barras, result[i].id_empresa_fk)
+                    const produto = new Produtos(resultSorted[i].id, resultSorted[i].nome, resultSorted[i].preco, resultSorted[i].preco_de_venda, resultSorted[i].quantidade, resultSorted[i].codigo_de_barras, resultSorted[i].id_empresa_fk)
 
-                    if(result[i].quantidade == 0){
+                    const quantidade = produto.quantidade - listSorted[i].quantidade
+
+                    if(produto.quantidade == 0){
                         productsSemEstoque.push(produto)
                         continue
                     }
-                    const quantidade = result[i].quantidade - quantidadeList[i] 
-    
-                    if(quantidade > 0){
-                        await produto.update('quantidade', quantidade)
-                    }else{
-                        await produto.update('quantidade', 0)
+
+                    if(quantidade <= 10){
+                        produtosBaixoEstoque.push(produto)
                     }
 
+                    if(quantidade < 0){
+                        quantidadeDisponivelInsuficiente.push(produto)
+                        continue
+                    }
+                    
+                    await produto.update('quantidade', quantidade)
+
+                    lucroTotal += produto.preco_de_venda - produto.preco 
                     productsAtt.push(produto)
-
                 }
-    
-                
-                if(result.length !== list.length){
-                    //items que não foram encotrados
-                    let itemsNotIncluded = []
-                
-                    for(let i = 0; i < list.length; i++){
-                        for(let j = 0; j < result.length; j++){
-                            if(result[j].codigo_de_barras !== list[i].itemIdentificador){
-                                itemsNotIncluded.push(list[i].itemIdentificador)
-                            }
-                        }
-                    }
+                req.produtos_vendidos = productsAtt
+                req.produtos_sem_estoque = productsSemEstoque
+                req.quantidade_disponivel_insuficiente = quantidadeDisponivelInsuficiente
+                req.lucro_total = lucroTotal
 
-                    return res.status(400).json({msg:"Algum dos produtos não foi encontrado.", nao_encotrados: itemsNotIncluded, produtos_sem_estoque: productsSemEstoque, atualizados: productsAtt})
-                }
-                
-                return res.status(200).json({msg: "Sucesso.", atualizados: productsAtt, produtos_sem_estoque: productsSemEstoque})
-               
+                return next()
             }
             else{
-                const result = await Produtos.find('codigo_de_barras', list[0].itemIdentificador)
+                const result = await Produtos.find('codigo_de_barras', list[0].codigo_de_barras)
+                const quantidadeDeProduto = list[0].quantidade
+                let produtosBaixoEstoque = null
                 if(!result) return res.status(400).json({msg: "Nenhum resultado encotrado."})
-
+                if(result.quantidade == 0){
+                    return res.status(400).json({msg: "Produto sem estoque."})
+                }
                 const produto = new Produtos(result.id, result.nome, result.preco, result.preco_de_venda, result.quantidade, result.codigo_de_barras, result.id_empresa_fk)
-                const quantidade = result.quantidade - 1 
-    
-                if(quantidade > 0){
-                    await produto.update('quantidade', quantidade)
-                }else{
-                    await produto.update('quantidade', 0)
+
+                if(produto.quantidade == 0) return res.status(400).json({msg:"Produto sem estoque."})
+                
+                const quantidade = produto.quantidade - quantidadeDeProduto
+
+                if(quantidade <= 10){
+                    produtosBaixoEstoque = produto
                 }
 
-                return res.status(200).json({msg: "Sucesso.", data: produto})
+                if(quantidade < 0) {
+                    return res.status(400).json({msg:"Produto sem estoque suficiente para o pedido."})
+                }
+
+                await produto.update('quantidade', quantidade)
+                
+                const lucroTotal = produto.preco_de_venda - produto.preco
+
+                req.produtos_vendidos = produto
+                req.produtos_sem_estoque = null
+                req.quantidade_disponivel_insuficiente = null
+                req.lucro_total = lucroTotal
+
+                return next()
             }
-
-            //falta colocar o total do preço
-
         } catch (error) {
             console.log(error)
             res.status(500).json({msg: "Erro no sistema, tente novamente.", error: error.message})

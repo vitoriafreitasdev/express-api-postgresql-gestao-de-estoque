@@ -40,15 +40,30 @@ CREATE TABLE Produtos(
 CREATE TABLE Relatorio_vendas(
     id_produto INTEGER NOT NULL,
     id_empresa INTEGER NOT NULL,
-    quantidade INTEGER NOT NULL,
-    id_empresa_fk INTEGER NOT NULL,
-    id_produto_fk INTEGER NOT NULL,
-    PRIMARY KEY(id_produto, id_empresa),
+    id_vendedor INTEGER NOT NULL,
+    quantidade_vendida INTEGER NOT NULL,
+    data_de_venda TIMESTAMP,
+    PRIMARY KEY(id_produto, id_empresa, id_vendedor),
     CONSTRAINT fk_rel_ven_empresa
-        FOREIGN KEY(id_empresa_fk) 
+        FOREIGN KEY(id_empresa) 
             REFERENCES Empresas(id),
     CONSTRAINT fk_rel_ven_produto
-        FOREIGN KEY(id_produto_fk) 
-            REFERENCES Produtos(id)
+        FOREIGN KEY(id_produto) 
+            REFERENCES Produtos(id),
+    CONSTRAINT fk_rel_ven_func
+        FOREIGN KEY(id_vendedor) 
+            REFERENCES Funcionarios(id)
 );
 
+CREATE TABLE ProdutosBaixoEstoque(
+    id_produto INTEGER NOT NULL,
+    id_empresa INTEGER NOT NULL,
+    quantidade INTEGER NOT NULL,
+    PRIMARY KEY(id_produto, id_empresa),
+    CONSTRAINT fk_produto
+        FOREIGN KEY(id_produto) 
+            REFERENCES Produtos(id),
+    CONSTRAINT fk_empresa
+        FOREIGN KEY(id_empresa) 
+            REFERENCES Empresas(id)        
+);
