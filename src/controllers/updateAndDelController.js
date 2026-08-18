@@ -33,7 +33,6 @@ const updateAndDelController = {
     }, 
     sellProducts: async (req, res, next) => {
         try {
-            //fazer testes
             const {list} = req.body
             if(list.length > 1){
                 const items = list.map((item) => item.codigo_de_barras)
@@ -48,6 +47,7 @@ const updateAndDelController = {
                 let produtosBaixoEstoque = []
                 let quantidadeDisponivelInsuficiente = []
                 let lucroTotal = 0
+             
 
                 if(resultSorted.length !== listSorted.length){
                     const newResult = resultSorted.map((item) => (item.codigo_de_barras))
@@ -59,32 +59,36 @@ const updateAndDelController = {
                 for(let i = 0; i < resultSorted.length; i++){
             
                     const produto = new Produtos(resultSorted[i].id, resultSorted[i].nome, resultSorted[i].preco, resultSorted[i].preco_de_venda, resultSorted[i].quantidade, resultSorted[i].codigo_de_barras, resultSorted[i].id_empresa_fk)
-
-                    const quantidade = produto.quantidade - listSorted[i].quantidade
+                    const quantidadeDeVenda = listSorted[i].quantidade
+                    const quantidade = produto.quantidade - quantidadeDeVenda
 
                     if(produto.quantidade == 0){
                         productsSemEstoque.push(produto)
                         continue
                     }
 
-                    if(quantidade <= 10){
-                        produtosBaixoEstoque.push(produto)
-                    }
-
                     if(quantidade < 0){
                         quantidadeDisponivelInsuficiente.push(produto)
                         continue
                     }
-                    
+
+                    if(quantidade <= 20){
+                        produtosBaixoEstoque.push(produto)
+                    }
+
                     await produto.update('quantidade', quantidade)
 
-                    lucroTotal += produto.preco_de_venda - produto.preco 
-                    productsAtt.push(produto)
+                    const lucro = (produto.preco_de_venda - produto.preco) * quantidadeDeVenda
+                    lucroTotal += lucro
+                    const obj = {produto, lucro, quantidadeDeVenda}
+
+                    productsAtt.push(obj)
                 }
                 req.produtos_vendidos = productsAtt
                 req.produtos_sem_estoque = productsSemEstoque
                 req.quantidade_disponivel_insuficiente = quantidadeDisponivelInsuficiente
                 req.lucro_total = lucroTotal
+                req.produtos_baixo_estoque = produtosBaixoEstoque
 
                 return next()
             }
@@ -93,23 +97,22 @@ const updateAndDelController = {
                 const quantidadeDeProduto = list[0].quantidade
                 let produtosBaixoEstoque = null
                 if(!result) return res.status(400).json({msg: "Nenhum resultado encotrado."})
+
                 if(result.quantidade == 0){
                     return res.status(400).json({msg: "Produto sem estoque."})
                 }
                 const produto = new Produtos(result.id, result.nome, result.preco, result.preco_de_venda, result.quantidade, result.codigo_de_barras, result.id_empresa_fk)
-
-                if(produto.quantidade == 0) return res.status(400).json({msg:"Produto sem estoque."})
                 
                 const quantidade = produto.quantidade - quantidadeDeProduto
-
-                if(quantidade <= 10){
-                    produtosBaixoEstoque = produto
-                }
 
                 if(quantidade < 0) {
                     return res.status(400).json({msg:"Produto sem estoque suficiente para o pedido."})
                 }
 
+                if(quantidade <= 20){
+                    produtosBaixoEstoque = produto
+                }
+  
                 await produto.update('quantidade', quantidade)
                 
                 const lucroTotal = produto.preco_de_venda - produto.preco
@@ -118,6 +121,7 @@ const updateAndDelController = {
                 req.produtos_sem_estoque = null
                 req.quantidade_disponivel_insuficiente = null
                 req.lucro_total = lucroTotal
+                req.produtos_baixo_estoque = produtosBaixoEstoque
 
                 return next()
             }

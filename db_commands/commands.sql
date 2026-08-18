@@ -38,12 +38,12 @@ CREATE TABLE Produtos(
 );
 
 CREATE TABLE Relatorio_vendas(
+    id BIGSERIAL NOT NULL PRIMARY KEY,
     id_produto INTEGER NOT NULL,
     id_empresa INTEGER NOT NULL,
     id_vendedor INTEGER NOT NULL,
     quantidade_vendida INTEGER NOT NULL,
     data_de_venda TIMESTAMP,
-    PRIMARY KEY(id_produto, id_empresa, id_vendedor),
     CONSTRAINT fk_rel_ven_empresa
         FOREIGN KEY(id_empresa) 
             REFERENCES Empresas(id),
@@ -55,15 +55,28 @@ CREATE TABLE Relatorio_vendas(
             REFERENCES Funcionarios(id)
 );
 
-CREATE TABLE ProdutosBaixoEstoque(
-    id_produto INTEGER NOT NULL,
-    id_empresa INTEGER NOT NULL,
-    quantidade INTEGER NOT NULL,
-    PRIMARY KEY(id_produto, id_empresa),
-    CONSTRAINT fk_produto
-        FOREIGN KEY(id_produto) 
-            REFERENCES Produtos(id),
-    CONSTRAINT fk_empresa
-        FOREIGN KEY(id_empresa) 
-            REFERENCES Empresas(id)        
-);
+--relatorio para mostrar
+SELECT 
+    p.nome, e.nome, f.nome, r.quantidade_vendida, r.data_de_venda, 
+    p.quantidade as quantidade_restante, p.preco_de_venda, p.preco, 
+    (p.preco_de_venda - p.preco) * r.quantidade_vendida as lucro
+FROM Relatorio_vendas r
+    INNER JOIN Produtos p
+        ON p.id = r.id_produto
+    INNER JOIN Funcionarios f
+        ON f.id = r.id_vendedor
+    INNER JOIN Empresas e
+        ON e.id = r.id_empresa;
+
+-- CREATE TABLE ProdutosBaixoEstoque(
+--     id_produto INTEGER NOT NULL,
+--     id_empresa INTEGER NOT NULL,
+--     quantidade INTEGER NOT NULL,
+--     PRIMARY KEY(id_produto, id_empresa),
+--     CONSTRAINT fk_produto
+--         FOREIGN KEY(id_produto) 
+--             REFERENCES Produtos(id),
+--     CONSTRAINT fk_empresa
+--         FOREIGN KEY(id_empresa) 
+--             REFERENCES Empresas(id)        
+-- );

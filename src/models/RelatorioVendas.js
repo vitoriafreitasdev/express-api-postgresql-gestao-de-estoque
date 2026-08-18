@@ -1,27 +1,34 @@
 import pool from "../db.js";
 
 class RelatorioVendas{
-    constructor(id_produto, id_empresa, id_vendedor, quantidade_vendida, data_de_venda){
-        this.id_produto = id_produto
-        this.id_empresa = id_empresa
-        this.id_vendedor = id_vendedor
-        this.quantidade_vendida = quantidade_vendida
-        this.data_de_venda = data_de_venda
+    constructor(idProduto, idEmpresa, idVendedor, quantidade, dataDeVenda){
+        this.idProduto = idProduto
+        this.idEmpresa = idEmpresa
+        this.idVendedor = idVendedor
+        this.quantidade = quantidade
+        this.dataDeVenda = dataDeVenda
     }
 
-    create(){
+    async create(){
         try {
-            const create = await pool.query(`INSERT INTO Relatorio_vendas(id_produto, id_empresa, id_vendedor, quantidade_vendida, data_de_venda) VALUES($1, $2, $3, $4, $5) RETURNING *`, [this.id_produto, this.id_empresa, this.id_vendedor, this.quantidade_vendida, this.data_de_venda])
-            if(create.rowCount > 0){
-                return create.rows
+            await pool.query(`INSERT INTO Relatorio_vendas(id_produto, id_empresa, id_vendedor, quantidade_vendida, data_de_venda) VALUES($1, $2, $3, $4, $5)`, [this.idProduto, this.idEmpresa, this.idVendedor, this.quantidade, this.dataDeVenda])
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    }
+
+    async get(){
+        try {
+            const find = await pool.query(`SELECT (id_produto, id_empresa, id_vendedor, quantidade_vendida, data_de_venda) FROM Relatorio_vendas RETURNING *`)
+            if(find.rowCount > 0){
+                return find.rows
             }
             return null
         } catch (error) {
             throw new Error(error.message)
         }
     }
-
-    deleteAll(){
+    async deleteAll(){
         try {
            await pool.query(`DELETE FROM Relatorio_vendas`)
         } catch (error) {
@@ -29,3 +36,5 @@ class RelatorioVendas{
         }
     }
 }
+
+export default RelatorioVendas
