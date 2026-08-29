@@ -1,13 +1,17 @@
 
 import express from 'express'
+
 import registerRouter from './routes/registerRoutes.js'
 import loginRouter from './routes/loginRoutes.js'
 import authRouter from './routes/authRoutes.js'
 import updateDelRouter from './routes/updateAndDelRoutes.js'
+import getProductsRouter from './routes/getProductsRoute.js'
+
 import passport from 'passport';
 import session from 'express-session'
 import connectPg from 'connect-pg-simple'
 import cookieParser from 'cookie-parser'
+import cors from 'cors'
 
 import './passport/config.js'
 
@@ -22,6 +26,7 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser())
+app.use(cors())
 
 app.use(session({
   secret: process.env.SECRET,
@@ -58,6 +63,8 @@ app.use('/register', registerRouter)
 app.use('/login', loginRouter)
 app.use('/auth', authRouter)
 app.use('/edit', updateDelRouter)
+app.use('/produtosget', getProductsRouter)
+
 
 app.listen(port, () => {
     console.log("Server is listening on port: ", port)

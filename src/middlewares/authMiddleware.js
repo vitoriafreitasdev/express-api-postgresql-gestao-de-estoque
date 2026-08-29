@@ -4,7 +4,7 @@ import jsonwebtoken from 'jsonwebtoken'
 
 const currentDir = import.meta.dirname;
 
-const pathToKeyPub = path.join(currentDir, 'id_rsa_pub.pem');
+const pathToKeyPub = path.join(currentDir, '../utils/id_rsa_pub.pem');
 
 const PUB_KEY = fs.readFileSync(pathToKeyPub, 'utf8');
 

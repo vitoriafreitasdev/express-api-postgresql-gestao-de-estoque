@@ -1,9 +1,9 @@
 import express from 'express'
 import passport from 'passport'
 import updateAndDelController from '../controllers/updateAndDelController.js'
-import authMiddleware from '../utils/authMiddleware.js'
-import authIsAdmin from '../utils/authIsAdmin.js'
-import sellUpdates from '../utils/sellUpdates.js'
+import authMiddleware from '../middlewares/authMiddleware.js'
+import authIsAdmin from '../middlewares/authIsAdmin.js'
+import sellUpdates from '../middlewares/sellUpdates.js'
 
 const router = express.Router()
 

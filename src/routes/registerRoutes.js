@@ -2,8 +2,8 @@ import express from 'express'
 import passport from 'passport'
 import registerController from '../controllers/registerController.js'
 import loginController from '../controllers/loginController.js'
-import authMiddleware from '../utils/authMiddleware.js'
-import authIsAdmin from '../utils/authIsAdmin.js'
+import authMiddleware from '../middlewares/authMiddleware.js'
+import authIsAdmin from '../middlewares/authIsAdmin.js'
 
 const router = express.Router()
 

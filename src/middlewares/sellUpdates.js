@@ -6,7 +6,6 @@ const sellUpdates = async (req, res, next) => {
     const produtosVendidos =  req.produtos_vendidos 
     const produtosSemEstoque = req.produtos_sem_estoque
     const lucroTotal = req.lucro_total 
-    const produtosBaixoEstoque = req.produtos_baixo_estoque
     const quantidadDisponivelInsuficiente = req.quantidade_disponivel_insuficiente
 
     const data = {
@@ -26,11 +25,9 @@ const sellUpdates = async (req, res, next) => {
         const quantidade = produtosVendidos[i].quantidadeDeVenda
 
         const relatorio = new RelatorioVendas(idProduto, idEmpresa, idVendedor, quantidade, dataDeVenda)
-        try {
-            await relatorio.create()
-        } catch (error) {
-            return res.status(201).json({msg: "Venda realizada com sucesso, atualização de relatório fracassada.", error: error.message, data: data})
-        }
+        
+        await relatorio.create()
+        
     }
 
     return res.status(201).json({msg: "Venda realizada com sucesso, relatório de venda atualizado.", data: data})

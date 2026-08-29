@@ -44,7 +44,6 @@ const updateAndDelController = {
                 
                 let productsAtt = []
                 let productsSemEstoque = []
-                let produtosBaixoEstoque = []
                 let quantidadeDisponivelInsuficiente = []
                 let lucroTotal = 0
              
@@ -72,10 +71,7 @@ const updateAndDelController = {
                         continue
                     }
 
-                    if(quantidade <= 20){
-                        produtosBaixoEstoque.push(produto)
-                    }
-
+                    
                     await produto.update('quantidade', quantidade)
 
                     const lucro = (produto.preco_de_venda - produto.preco) * quantidadeDeVenda
@@ -88,14 +84,13 @@ const updateAndDelController = {
                 req.produtos_sem_estoque = productsSemEstoque
                 req.quantidade_disponivel_insuficiente = quantidadeDisponivelInsuficiente
                 req.lucro_total = lucroTotal
-                req.produtos_baixo_estoque = produtosBaixoEstoque
 
                 return next()
             }
             else{
                 const result = await Produtos.find('codigo_de_barras', list[0].codigo_de_barras)
                 const quantidadeDeProduto = list[0].quantidade
-                let produtosBaixoEstoque = null
+                
                 if(!result) return res.status(400).json({msg: "Nenhum resultado encotrado."})
 
                 if(result.quantidade == 0){
@@ -109,10 +104,7 @@ const updateAndDelController = {
                     return res.status(400).json({msg:"Produto sem estoque suficiente para o pedido."})
                 }
 
-                if(quantidade <= 20){
-                    produtosBaixoEstoque = produto
-                }
-  
+            
                 await produto.update('quantidade', quantidade)
                 
                 const lucroTotal = produto.preco_de_venda - produto.preco
@@ -121,7 +113,6 @@ const updateAndDelController = {
                 req.produtos_sem_estoque = null
                 req.quantidade_disponivel_insuficiente = null
                 req.lucro_total = lucroTotal
-                req.produtos_baixo_estoque = produtosBaixoEstoque
 
                 return next()
             }

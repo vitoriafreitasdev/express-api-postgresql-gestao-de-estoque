@@ -82,7 +82,7 @@ class Produtos{
 
     static async getProductsLowStock(){
         try {
-            const find = await pool.query(`SELECT id, nome, preco, preco_de_venda, quantidade, codigo_de_barras, id_empresa_fk FROM Produtos WHERE quantidade <= 20 RETURNING *`)
+            const find = await pool.query(`SELECT id, nome, preco, preco_de_venda, quantidade, codigo_de_barras, id_empresa_fk FROM Produtos WHERE quantidade <= 20`)
             if(find.rowCount > 0){
                 return find.rows
             }
