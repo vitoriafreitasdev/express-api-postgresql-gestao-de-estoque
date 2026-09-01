@@ -61,9 +61,9 @@ const getProdutosController = {
                 return false
             })
             
-            const lucroPorPeriodo = vendasDoPeriodo.reduce((acomulador, valor) => {
-                acomulador += Number(valor.lucro_da_venda_total)
-                return acomulador
+            const lucroPorPeriodo = vendasDoPeriodo.reduce((acumulador, valor) => {
+                acumulador += Number(valor.lucro_da_venda_total)
+                return acumulador
             }, 0)
 
             res.status(200).json({vendasDoPeriodo: vendasDoPeriodo, vendaTotal: lucroPorPeriodo})
