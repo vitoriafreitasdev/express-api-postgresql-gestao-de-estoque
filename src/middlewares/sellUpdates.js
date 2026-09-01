@@ -19,15 +19,18 @@ const sellUpdates = async (req, res, next) => {
     const dataDeVenda = new Date()
     const idVendedor = vendaFeitaPor.id
 
-    for(let i = 0; i < produtosVendidos.length; i++){
-        const idProduto = produtosVendidos[i].produto.id
-        const idEmpresa = produtosVendidos[i].produto.id_empresa_fk
-        const quantidade = produtosVendidos[i].quantidadeDeVenda
+    try {
+        for(let i = 0; i < produtosVendidos.length; i++){
+            const idProduto = produtosVendidos[i].produto.id
+            const idEmpresa = produtosVendidos[i].produto.id_empresa_fk
+            const quantidade = produtosVendidos[i].quantidadeDeVenda
 
-        const relatorio = new RelatorioVendas(idProduto, idEmpresa, idVendedor, quantidade, dataDeVenda)
-        
-        await relatorio.create()
-        
+            const relatorio = new RelatorioVendas(idProduto, idEmpresa, idVendedor, quantidade, dataDeVenda)
+            
+            await relatorio.create()
+        }
+    } catch (error) {
+        return res.status(201).json({msg: "Venda realizada com sucesso, porém houve erro ao atualizar o relatório.", error: error, data: data})
     }
 
     return res.status(201).json({msg: "Venda realizada com sucesso, relatório de venda atualizado.", data: data})

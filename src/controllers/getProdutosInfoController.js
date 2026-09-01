@@ -1,8 +1,7 @@
 import Produtos from "../models/Produtos.js"
+import RelatorioVendas from "../models/RelatorioVendas.js";
 import bwipjs from 'bwip-js'; 
-import fs from 'fs'
-//fazer => Histórico de movimentações por período
-//fazer => Relatório de produtos mais vendidos e margem de lucro
+
 const getProdutosController = {
     mostrarProduto: async (req, res) => {
         try {
@@ -27,6 +26,7 @@ const getProdutosController = {
             }
 
         } catch (error) {
+            console.log(error)
             return res.status(400).json({msg: "Erro no servidor, tente novamente mais tarde.", error: error.message})
         }
 
@@ -36,6 +36,39 @@ const getProdutosController = {
             const produtosBaixoEstoque = await Produtos.getProductsLowStock()
             return res.status(200).json({produtos_baixo_estoque: produtosBaixoEstoque})
         } catch (error) {
+            console.log(error)
+            return res.status(400).json({msg: "Erro no servidor, tente novamente mais tarde.", error: error.message})
+        }
+    },
+    buscarRelatorio: async (req, res) => {
+        try {
+            const relatorio = await RelatorioVendas.get()
+            res.status(200).json({relatorio: relatorio})
+        } catch (error) {
+            console.log(error)
+            return res.status(400).json({msg: "Erro no servidor, tente novamente mais tarde.", error: error.message})            
+        }
+    },
+    buscarVendasPorPeriodo: async (req, res) => {
+        try {
+            const {periodo} = req.body
+            const relatorio = await RelatorioVendas.get()
+            const vendasDoPeriodo = relatorio.filter((venda) =>{
+                const data = venda.data_de_venda.toLocaleString().split(',')[0]
+                if(periodo.includes(data.split('/')[1])){
+                    return true
+                }
+                return false
+            })
+            
+            const lucroPorPeriodo = vendasDoPeriodo.reduce((acomulador, valor) => {
+                acomulador += Number(valor.lucro_da_venda_total)
+                return acomulador
+            }, 0)
+
+            res.status(200).json({vendasDoPeriodo: vendasDoPeriodo, vendaTotal: lucroPorPeriodo})
+        } catch (error) {
+            console.log(error)
             return res.status(400).json({msg: "Erro no servidor, tente novamente mais tarde.", error: error.message})
         }
     }

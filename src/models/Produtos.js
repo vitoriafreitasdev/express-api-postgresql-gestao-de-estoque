@@ -56,7 +56,8 @@ class Produtos{
     
     static async findMany(value, valuesList){
         try {
-            const query = `SELECT id, nome, preco, preco_de_venda, quantidade, codigo_de_barras, id_empresa_fk FROM Produtos WHERE ${value} in (${valuesList.map( (x, index) => {return `$${index+1}`} )})`
+            const query = `SELECT id, nome, preco, preco_de_venda, quantidade, codigo_de_barras, id_empresa_fk FROM Produtos WHERE ${value} in 
+            (${valuesList.map( (x, index) => {return `$${index+1}`} )})`
             const find = await pool.query(query, valuesList)
             if(find.rowCount > 0){
                 return find.rows
