@@ -26,7 +26,10 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser())
-app.use(cors())
+app.use(cors({
+    origin: 'http://127.0.0.1:5500', // URL Front-End de teste
+    credentials: true 
+}))
 
 app.use(session({
   secret: process.env.SECRET,
@@ -36,7 +39,7 @@ app.use(session({
     path: '/',
     httpOnly: true,               
     secure: false,                   
-    sameSite: 'auto',                 
+    sameSite: 'lax',                 
     maxAge: 24 * 60 * 60 * 1000 
   }, 
   store: sessionStore
@@ -53,11 +56,12 @@ app.get('/', (req, res) => {
 app.get('/login', (req, res) => { 
   const form = '<h1>Login Page</h1><form method="POST" action="/login/worker">\
     Enter Username:<br><input type="text" name="email">\
-    <br>Enter Password:<br><input type="password" name="password">\
+    <br>Enter Password:<br><input type="password" name="senha">\
     <br><br><input type="submit" value="Submit"></form>';
 
   res.send(form);
 })
+
 
 app.use('/register', registerRouter)
 app.use('/login', loginRouter)

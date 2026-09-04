@@ -1,3 +1,4 @@
+
 import fs from 'fs'
 import path from 'path'
 import jsonwebtoken from 'jsonwebtoken'
@@ -9,9 +10,10 @@ const pathToKeyPub = path.join(currentDir, '../utils/id_rsa_pub.pem');
 const PUB_KEY = fs.readFileSync(pathToKeyPub, 'utf8');
 
 function authMiddleware(req, res, next){
+  //req.cookies['jwt']  é undefined e req.user
   const token = req.cookies['jwt'] ? req.cookies['jwt'].token : null
   const sessionExpire = !req.user ? true : false // se a sessão do usuário expirou também vai estar não autorizado
-
+ // console.log(req.cookies['jwt'], req.user)
   if(token && !sessionExpire)
   {
     try {
@@ -25,7 +27,13 @@ function authMiddleware(req, res, next){
     
   }
   else {
-    res.status(401).json({msg: 'Não autorizado, sem token de acesso ou sessão expirou.'})
+    
+    if(!token && sessionExpire) return res.status(401).json({msg: 'Não autorizado, sem token de acesso e sessão expirou.'})
+    
+    if(sessionExpire) return res.status(401).json({msg: 'Não autorizado, sessão expirou.'})
+
+    return res.status(401).json({msg: 'Não autorizado, sem token de acesso.'})
+
   }
 
 }

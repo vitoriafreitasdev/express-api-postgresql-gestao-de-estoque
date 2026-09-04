@@ -30,9 +30,44 @@ class Produtos{
         }
     }
 
+    async updateQuant(quantidade){
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+            const productRes = await client.query(
+            'SELECT quantidade FROM Produtos WHERE id = $1 FOR UPDATE', 
+            [this.id]);
+  
+            const stock = productRes.rows[0].quantidade;
+
+            if (stock <= 0) {
+                await client.query('ROLLBACK');
+                return null
+            }
+
+            // 3. Decrease stock
+            await client.query(
+                'UPDATE Produtos SET quantidade = quantidade - $1 WHERE id = $2', 
+                [quantidade, this.id]
+            );
+
+            await client.query('COMMIT');
+            
+            this.quantidade = this.quantidade - quantidade
+            return true
+
+            } catch (error) {
+                await client.query('ROLLBACK');
+                return null
+            } finally {
+                client.release();
+            }
+        }
+
     async update(valueToUpdate, value){
         try {
             const result = await pool.query(`UPDATE Produtos SET ${valueToUpdate} = $1 WHERE id = ${this.id} RETURNING *`, [value])
+
             if(valueToUpdate == 'nome') this.nome = result.rows[0].nome
             if(valueToUpdate == 'preco') this.preco = result.rows[0].preco
             if(valueToUpdate == 'preco_de_venda') this.preco_de_venda = result.rows[0].preco_de_venda

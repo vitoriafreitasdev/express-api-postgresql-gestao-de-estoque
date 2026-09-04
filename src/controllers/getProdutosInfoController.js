@@ -10,12 +10,12 @@ const getProdutosController = {
         
             try {
                 const imageBuffer = await bwipjs.toBuffer({
-                bcid:        'code128',       // Barcode type
-                text:        produto.codigo_de_barras,    // Text to encode
-                scale:       3,               // 3x scaling factor
-                height:      10,              // Bar height, in millimeters
-                includetext: true,            // Show human-readable text
-                textxalign:  'center',        // Always good to set this
+                bcid:        'code128',       
+                text:        produto.codigo_de_barras,    
+                scale:       3,               
+                height:      10,              
+                includetext: true,            
+                textxalign:  'center',        
                 })
 
                 const base64 = imageBuffer.toString('base64')

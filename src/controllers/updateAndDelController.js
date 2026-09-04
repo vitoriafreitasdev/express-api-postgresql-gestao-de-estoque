@@ -1,6 +1,5 @@
 import pool from "../db.js";
-import Empresas from "../models/Empresas.js"; 
-import Funcionarios from "../models/Funcionarios.js";
+
 import Produtos from "../models/Produtos.js";
 
 const updateAndDelController = {
@@ -33,6 +32,7 @@ const updateAndDelController = {
     }, 
     sellProducts: async (req, res, next) => {
         try {
+
             const {list} = req.body
             if(list.length > 1){
                 const items = list.map((item) => item.codigo_de_barras)
@@ -46,7 +46,6 @@ const updateAndDelController = {
                 let productsSemEstoque = []
                 let quantidadeDisponivelInsuficiente = []
                 let lucroTotal = 0
-             
 
                 if(resultSorted.length !== listSorted.length){
                     const newResult = resultSorted.map((item) => (item.codigo_de_barras))
@@ -70,9 +69,12 @@ const updateAndDelController = {
                         quantidadeDisponivelInsuficiente.push(produto)
                         continue
                     }
-
                     
-                    await produto.update('quantidade', quantidade)
+                    const uptade = await produto.updateQuant(quantidadeDeVenda)
+                    if(uptade == null){
+                        quantidadeDisponivelInsuficiente.push(produto)
+                        continue
+                    }
 
                     const lucro = (produto.preco_de_venda - produto.preco) * quantidadeDeVenda
                     lucroTotal += lucro
@@ -105,8 +107,12 @@ const updateAndDelController = {
                 }
 
             
-                await produto.update('quantidade', quantidade)
-                
+                const update = await produto.updateQuant(quantidadeDeProduto)
+
+                if(update == null) {
+                    return res.status(400).json({msg:"Produto sem estoque suficiente para o pedido."})
+                }
+
                 const lucroTotal = produto.preco_de_venda - produto.preco
 
                 req.produtos_vendidos = produto

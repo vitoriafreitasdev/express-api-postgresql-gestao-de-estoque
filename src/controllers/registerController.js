@@ -72,7 +72,7 @@ const registerController = {
             res.send(result)
        } catch (error) {
             if(error.message === 'error: duplicar valor da chave viola a restrição de unicidade \"produtos_codigo_de_barras_key\"'){
-                return res.status(500).json({message: "Produto com esse código de barras já existente.", error: error.message})
+                return res.status(400).json({message: "Produto com esse código de barras já existente.", error: error.message})
             }
             return res.status(500).json({message: "Erro no sistema, tente novamente mais tarde.", error: error.message})
        }

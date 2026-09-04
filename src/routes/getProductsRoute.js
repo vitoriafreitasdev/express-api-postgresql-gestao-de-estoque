@@ -10,6 +10,4 @@ router.get('/relatorio', authMiddleware, authIsAdmin, (req, res) => getProdutosC
 router.get('/relatorio_vendas_por_periodo', authMiddleware, authIsAdmin, (req, res) => getProdutosController.buscarVendasPorPeriodo(req, res))
 router.get('/:id', (req, res) => getProdutosController.mostrarProduto(req, res))
 
-
-
 export default router
