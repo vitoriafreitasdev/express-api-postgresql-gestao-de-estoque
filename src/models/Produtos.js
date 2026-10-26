@@ -30,40 +30,48 @@ class Produtos{
         }
     }
 
-    async updateQuant(quantidade){
+    static async updateQuant(produto, quantidadeParaVender){
         const client = await pool.connect();
         try {
+            
             await client.query('BEGIN');
-            const productRes = await client.query(
-            'SELECT quantidade FROM Produtos WHERE id = $1 FOR UPDATE', 
-            [this.id]);
-  
-            const stock = productRes.rows[0].quantidade;
-
-            if (stock <= 0) {
-                await client.query('ROLLBACK');
+            
+            if(!produto) {
+                await client.query('ROLLBACK')
+                console.log("produto nao encontrado ", produto.codigo_de_barras)
                 return null
             }
 
-            // 3. Decrease stock
-            await client.query(
-                'UPDATE Produtos SET quantidade = quantidade - $1 WHERE id = $2', 
-                [quantidade, this.id]
-            );
+            const stock = produto.quantidade;
+            const quantidadeDisponivel = stock - quantidadeParaVender
 
+            if (stock <= 0 || quantidadeDisponivel <= 0) {
+                await client.query('ROLLBACK')
+                return null
+            }
+
+            await client.query(
+                'UPDATE Produtos SET quantidade = quantidade - $1 WHERE codigo_de_barras = $2', 
+                [quantidadeParaVender, produto.codigo_de_barras]
+            );
+            const productAtt = await client.query(
+                        'SELECT * FROM Produtos WHERE codigo_de_barras = $1 FOR UPDATE', 
+                        [produto.codigo_de_barras]);
             await client.query('COMMIT');
-            
-            this.quantidade = this.quantidade - quantidade
-            return true
+
+            return productAtt.rows[0]
 
             } catch (error) {
                 await client.query('ROLLBACK');
+                console.log(error)
                 return null
             } finally {
                 client.release();
             }
         }
-
+        /* 
+        Aqui fazer a verificação se a versao que usuario esta editando nao é desatualizada, lidando com transações/concorrência 
+        */
     async update(valueToUpdate, value){
         try {
             const result = await pool.query(`UPDATE Produtos SET ${valueToUpdate} = $1 WHERE id = ${this.id} RETURNING *`, [value])

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./normalize.css" />
+    <link rel="stylesheet" href="./styles.css" />
+    <title>Javascript</title>
+  </head>
+  <body>
+    <nav>
+      <div class="nav-center">
+        <h5>HTTP Methods</h5>
+        <div>
+          <a href="index.html">regular </a>
+          <a href="javascript.html">javascript </a>
+        </div>
+      </div>
+    </nav>
+    <main>
+       
+          <button type="submit" class="block submit-btn">Fazer teste</button>
+        
+    </main>
+    <script>
+      
+      const btn = document.querySelector('.submit-btn')
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault()
+        const dados = {
+          list: [{
+            codigo_de_barras: "123454321", quantidade: 1
+          }]
+        }
+        try {
+            const res = await fetch('http://localhost:5003/edit/sellProducts', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dados) 
+            })
+      
+            const data = await res.json()
+
+            console.log(data)
+
+        } catch (error) {
+          console.log(error)
+        }
+      })
+    </script>
+  </body>
+</html>

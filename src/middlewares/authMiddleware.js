@@ -10,14 +10,15 @@ const pathToKeyPub = path.join(currentDir, '../utils/id_rsa_pub.pem');
 const PUB_KEY = fs.readFileSync(pathToKeyPub, 'utf8');
 
 function authMiddleware(req, res, next){
-  //req.cookies['jwt']  é undefined e req.user
+
   const token = req.cookies['jwt'] ? req.cookies['jwt'].token : null
-  const sessionExpire = !req.user ? true : false // se a sessão do usuário expirou também vai estar não autorizado
- // console.log(req.cookies['jwt'], req.user)
+  const sessionExpire = !req.user ? true : false 
+  
   if(token && !sessionExpire)
   {
     try {
       const verification = jsonwebtoken.verify(token, PUB_KEY, {algorithms: ['RS256']})
+
       req.jwt = verification
       next()
     } catch (error) {

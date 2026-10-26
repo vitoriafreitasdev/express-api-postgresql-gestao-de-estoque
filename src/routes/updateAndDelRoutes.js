@@ -1,5 +1,4 @@
 import express from 'express'
-import passport from 'passport'
 import updateAndDelController from '../controllers/updateAndDelController.js'
 import authMiddleware from '../middlewares/authMiddleware.js'
 import authIsAdmin from '../middlewares/authIsAdmin.js'

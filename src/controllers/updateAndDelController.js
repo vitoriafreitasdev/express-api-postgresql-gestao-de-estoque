@@ -32,7 +32,7 @@ const updateAndDelController = {
     }, 
     sellProducts: async (req, res, next) => {
         try {
-
+            
             const {list} = req.body
             if(list.length > 1){
                 const items = list.map((item) => item.codigo_de_barras)
@@ -53,30 +53,18 @@ const updateAndDelController = {
 
                     return res.status(400).json({msg:"Alguns dos produtos não foi encontrado.", nao_encontrados: filter})
                 }
-
                 for(let i = 0; i < resultSorted.length; i++){
-            
-                    const produto = new Produtos(resultSorted[i].id, resultSorted[i].nome, resultSorted[i].preco, resultSorted[i].preco_de_venda, resultSorted[i].quantidade, resultSorted[i].codigo_de_barras, resultSorted[i].id_empresa_fk)
+        
                     const quantidadeDeVenda = listSorted[i].quantidade
-                    const quantidade = produto.quantidade - quantidadeDeVenda
+                    const produto = await Produtos.updateQuant(resultSorted[i], quantidadeDeVenda)
 
-                    if(produto.quantidade == 0){
+                    if(!produto){
                         productsSemEstoque.push(produto)
-                        continue
-                    }
-
-                    if(quantidade < 0){
-                        quantidadeDisponivelInsuficiente.push(produto)
-                        continue
-                    }
-                    
-                    const uptade = await produto.updateQuant(quantidadeDeVenda)
-                    if(uptade == null){
                         quantidadeDisponivelInsuficiente.push(produto)
                         continue
                     }
 
-                    const lucro = (produto.preco_de_venda - produto.preco) * quantidadeDeVenda
+                    const lucro = (resultSorted[i].preco_de_venda - resultSorted[i].preco) * quantidadeDeVenda
                     lucroTotal += lucro
                     const obj = {produto, lucro, quantidadeDeVenda}
 
@@ -89,39 +77,27 @@ const updateAndDelController = {
 
                 return next()
             }
-            else{
-                const result = await Produtos.find('codigo_de_barras', list[0].codigo_de_barras)
-                const quantidadeDeProduto = list[0].quantidade
-                
-                if(!result) return res.status(400).json({msg: "Nenhum resultado encotrado."})
-
-                if(result.quantidade == 0){
-                    return res.status(400).json({msg: "Produto sem estoque."})
-                }
-                const produto = new Produtos(result.id, result.nome, result.preco, result.preco_de_venda, result.quantidade, result.codigo_de_barras, result.id_empresa_fk)
-                
-                const quantidade = produto.quantidade - quantidadeDeProduto
-
-                if(quantidade < 0) {
-                    return res.status(400).json({msg:"Produto sem estoque suficiente para o pedido."})
-                }
-
             
-                const update = await produto.updateQuant(quantidadeDeProduto)
+            const quantidadeDeProduto = list[0].quantidade
+            const produto = await Produtos.find('codigo_de_barras', list[0].codigo_de_barras)
 
-                if(update == null) {
-                    return res.status(400).json({msg:"Produto sem estoque suficiente para o pedido."})
-                }
+            if(produto == null) return res.status(400).json({msg:"Produto não encontrado."})
+            
+            const update = await Produtos.updateQuant(produto, quantidadeDeProduto)
 
-                const lucroTotal = produto.preco_de_venda - produto.preco
-
-                req.produtos_vendidos = produto
-                req.produtos_sem_estoque = null
-                req.quantidade_disponivel_insuficiente = null
-                req.lucro_total = lucroTotal
-
-                return next()
+            if(update == null) {
+                return res.status(400).json({msg:"Produto sem estoque suficiente para o pedido."})
             }
+
+            const lucroTotal = update.preco_de_venda - update.preco
+
+            req.produtos_vendidos = update
+            req.produtos_sem_estoque = null
+            req.quantidade_disponivel_insuficiente = null
+            req.lucro_total = lucroTotal
+
+            return next()
+            
         } catch (error) {
             console.log(error)
             res.status(500).json({msg: "Erro no sistema, tente novamente.", error: error.message})

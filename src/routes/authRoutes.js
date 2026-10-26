@@ -5,7 +5,7 @@ import authIsAdmin from '../middlewares/authIsAdmin.js'
 
 const router = express.Router()
 
-//rotas de teste de autentificação
+
 router.get('/get-user', authMiddleware, (req, res) =>  {
     res.send(`Autorizado: ${req.user.nome}`)
 })

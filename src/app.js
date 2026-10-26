@@ -13,6 +13,8 @@ import connectPg from 'connect-pg-simple'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 
+import path from 'path'
+
 import './passport/config.js'
 
 const PostgresqlStore = connectPg(session);
@@ -20,26 +22,37 @@ const sessionStore = new PostgresqlStore({
   conString: process.env.STRING_CONN_SESSION,
 });
 
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
 const port = 5003
 const app = express()
+
+//aqui conseguimos fazer requisição para com a mesma origem com a configuração atual da session e do JWT (com sameSite: lax e secure: false)
+app.use(express.static(path.join(__dirname, 'public')))
 
 app.use(express.json())
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser())
-app.use(cors({
-    origin: 'http://127.0.0.1:5500', // URL Front-End de teste
-    credentials: true 
-}))
 
+// app.use(cors({
+//     origin: 'http://127.0.0.1:5500', // URL Front-End de teste
+//     credentials: true 
+// }))
+
+
+//para usar no browser vindo de uma dominio diferente precisa sameSite: 'none' e secure = true, mas para isso precisa ser https
 app.use(session({
   secret: process.env.SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
     path: '/',
-    httpOnly: true,               
-    secure: false,                   
-    sameSite: 'lax',                 
+    secure: false,    
+    httpOnly: true,                                 
+    sameSite: 'lax',      
     maxAge: 24 * 60 * 60 * 1000 
   }, 
   store: sessionStore
@@ -47,27 +60,14 @@ app.use(session({
 
 app.use(passport.initialize())
 app.use(passport.session())
-
-app.get('/', (req, res) => { 
-  res.send(`<div>Bem vindo</div`)
-})
-
-//para testes
-app.get('/login', (req, res) => { 
-  const form = '<h1>Login Page</h1><form method="POST" action="/login/worker">\
-    Enter Username:<br><input type="text" name="email">\
-    <br>Enter Password:<br><input type="password" name="senha">\
-    <br><br><input type="submit" value="Submit"></form>';
-
-  res.send(form);
-})
-
-
+//rotade teste de autenticação
+app.use('/auth', authRouter)
+//11 endpoints no total 
 app.use('/register', registerRouter)
 app.use('/login', loginRouter)
-app.use('/auth', authRouter)
 app.use('/edit', updateDelRouter)
 app.use('/produtosget', getProductsRouter)
+
 
 
 app.listen(port, () => {
