@@ -3,6 +3,16 @@ import RelatorioVendas from "../models/RelatorioVendas.js";
 import bwipjs from 'bwip-js'; 
 
 const getProdutosController = {
+    mostrarProdutos: async (req, res) => {
+        try {
+            const produtos = await Produtos.getAll()
+            console.log(produtos)
+            return res.status(200).json({produtos: produtos})
+        } catch (error) {
+            console.log(error)
+            return res.status(400).json({msg: "Erro no servidor, tente novamente mais tarde.", error: error.message})
+        }
+    },
     mostrarProduto: async (req, res) => {
         try {
             const {id} = req.params
@@ -55,9 +65,8 @@ const getProdutosController = {
             const relatorio = await RelatorioVendas.get()
             const vendasDoPeriodo = relatorio.filter((venda) =>{
                 const data = venda.data_de_venda.toLocaleString().split(',')[0]
-                if(periodo.includes(data.split('/')[1])){
-                    return true
-                }
+
+                if(periodo.includes(data.split('/')[1])) return true
                 return false
             })
             

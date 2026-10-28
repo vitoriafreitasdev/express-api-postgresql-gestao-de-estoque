@@ -1,11 +1,4 @@
-/*
-    id BIGSERIAL NOT NULL PRIMARY KEY,
-    nome VARCHAR(50) NOT NULL,
-    preco NUMERIC(6, 2),
-    quantidade INTEGER NOT NULL DEFAULT 0, 
-    codigo_de_barras VARCHAR(50) NOT NULL,
-    id_empresa_fk INTEGER NOT NULL,
-*/
+
 
 import pool from "../db.js"
 
@@ -25,6 +18,16 @@ class Produtos{
             const result = await pool.query(`INSERT INTO Produtos (nome, preco, preco_de_venda, quantidade, codigo_de_barras, id_empresa_fk) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`, [this.nome, this.preco, this.preco_de_venda, this.quantidade, this.codigo_de_barras, this.id_empresa_fk])
             this.id = result.rows[0].id
             return result.rows[0]
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
+
+    static async getAll(){
+        try {
+            const result = await pool.query(`SELECT * FROM Produtos`)
+            
+            return result.rows
         } catch (error) {
             throw new Error(error)
         }
@@ -111,6 +114,7 @@ class Produtos{
             throw new Error(error)
         }
     }
+
     static async find(nameValue, value){
         try {
             const find = await pool.query(`SELECT id, nome, preco, preco_de_venda, quantidade, codigo_de_barras, id_empresa_fk FROM Produtos WHERE ${nameValue} = $1`, [value])
